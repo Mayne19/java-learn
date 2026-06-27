@@ -59,7 +59,7 @@ export function Header() {
           {authChecked && supabaseConfigured && !user && (
             <Button variant="outline" size="sm" onClick={() => router.push("/login")}>
               <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">Connexion</span>
+              <span>Connexion</span>
             </Button>
           )}
           {user && (

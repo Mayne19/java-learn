@@ -1,0 +1,247 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── Vercel Geist Color System ─────────────────────────────────────────────
+   Light: https://vercel.com/design.md
+   Dark:  https://vercel.com/design.dark.md
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  --radius: 0.375rem; /* Vercel sm = 6px, used as base */
+
+  /* Backgrounds */
+  --background:         #ffffff; /* background-100 */
+  --foreground:         #171717; /* gray-1000 */
+  --card:               #ffffff; /* background-100 */
+  --card-foreground:    #171717; /* gray-1000 */
+  --popover:            #ffffff; /* background-100 */
+  --popover-foreground: #171717; /* gray-1000 */
+
+  /* Primary = black */
+  --primary:            #171717; /* gray-1000 */
+  --primary-foreground: #ffffff; /* background-100 */
+
+  /* Secondary / Muted = lightest gray */
+  --secondary:             #f2f2f2; /* gray-100 */
+  --secondary-foreground:  #171717; /* gray-1000 */
+  --muted:                 #f2f2f2; /* gray-100 */
+  --muted-foreground:      #8f8f8f; /* gray-700 */
+
+  /* Accent = slightly darker than muted */
+  --accent:            #ebebeb; /* gray-200 */
+  --accent-foreground: #171717; /* gray-1000 */
+
+  /* Destructive = red-700 */
+  --destructive:            #fc0035; /* red-700 */
+  --destructive-foreground: #ffffff;
+
+  /* Borders / Input */
+  --border: #eaeaea; /* gray-400 = default border */
+  --input:  #eaeaea; /* gray-400 */
+  --ring:   #006bff; /* blue-700 = focus ring */
+
+  /* Chart (gray scale steps) */
+  --chart-1: #c9c9c9; /* gray-500 */
+  --chart-2: #8f8f8f; /* gray-700 */
+  --chart-3: #7d7d7d; /* gray-800 */
+  --chart-4: #4d4d4d; /* gray-900 */
+  --chart-5: #171717; /* gray-1000 */
+
+  /* Sidebar */
+  --sidebar:                    #fafafa; /* background-200 */
+  --sidebar-foreground:         #171717; /* gray-1000 */
+  --sidebar-primary:            #171717; /* gray-1000 */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #f2f2f2; /* gray-100 */
+  --sidebar-accent-foreground:  #171717; /* gray-1000 */
+  --sidebar-border:             #eaeaea; /* gray-400 */
+  --sidebar-ring:               #006bff; /* blue-700 */
+
+  /* Surface / Code block */
+  --surface:             #fafafa; /* background-200 */
+  --surface-foreground:  var(--foreground);
+  --code:                var(--surface);
+  --code-foreground:     var(--surface-foreground);
+  --code-highlight:      #e9f4ff; /* blue-200 — subtle line highlight */
+  --code-number:         #8f8f8f; /* gray-700 */
+  --code-token-keyword:  #006bff; /* blue-700 */
+  --code-token-type:     #7928ca; /* purple accent */
+  --code-token-string:   #28a948; /* green-700 */
+  --code-token-number:   #ffae00; /* amber-700 */
+  --code-token-comment:  #8f8f8f; /* gray-700 */
+  --code-token-method:   #7928ca; /* purple accent */
+  --code-token-operator: #fc0035; /* red-700 */
+
+  /* Text selection */
+  --selection:            #171717; /* gray-1000 */
+  --selection-foreground: #ffffff;
+
+  /* Semantic status — Vercel Geist accent scales */
+  --success:            #28a948; /* green-700 */
+  --success-foreground: #ffffff;
+  --warning:            #ffae00; /* amber-700 */
+  --warning-foreground: #171717; /* dark text — amber is light */
+}
+
+.dark {
+  /* Backgrounds — Vercel dark = pure black */
+  --background:         #000000; /* background-100 dark */
+  --foreground:         #ededed; /* gray-1000 dark */
+  --card:               #111111; /* subtle elevation above #000 */
+  --card-foreground:    #ededed; /* gray-1000 dark */
+  --popover:            #1a1a1a; /* gray-100 dark — overlays */
+  --popover-foreground: #ededed; /* gray-1000 dark */
+
+  /* Primary = near-white */
+  --primary:            #ededed; /* gray-1000 dark */
+  --primary-foreground: #000000; /* background dark */
+
+  /* Secondary / Muted */
+  --secondary:             #1a1a1a; /* gray-100 dark */
+  --secondary-foreground:  #ededed; /* gray-1000 dark */
+  --muted:                 #1a1a1a; /* gray-100 dark */
+  --muted-foreground:      #a0a0a0; /* gray-900 dark */
+
+  /* Accent */
+  --accent:            #1f1f1f; /* gray-200 dark */
+  --accent-foreground: #ededed; /* gray-1000 dark */
+
+  /* Destructive = red-600 dark */
+  --destructive:            #f32e40; /* red-600 dark */
+  --destructive-foreground: #ffffff;
+
+  /* Borders / Input */
+  --border: #2e2e2e; /* gray-400 dark */
+  --input:  #292929; /* gray-300 dark */
+  --ring:   #0090ff; /* blue-600 dark — focus ring */
+
+  /* Chart */
+  --chart-1: #454545; /* gray-500 dark */
+  --chart-2: #878787; /* gray-600 dark */
+  --chart-3: #7d7d7d; /* gray-800 dark */
+  --chart-4: #a0a0a0; /* gray-900 dark */
+  --chart-5: #ededed; /* gray-1000 dark */
+
+  /* Sidebar */
+  --sidebar:                    #111111;
+  --sidebar-foreground:         #ededed;
+  --sidebar-primary:            #ededed;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent:             #1a1a1a; /* gray-100 dark */
+  --sidebar-accent-foreground:  #ededed;
+  --sidebar-border:             #2e2e2e; /* gray-400 dark */
+  --sidebar-ring:               #0090ff; /* blue-600 dark */
+
+  /* Surface / Code block */
+  --surface:            #1a1a1a; /* gray-100 dark */
+  --surface-foreground: #a0a0a0; /* gray-900 dark */
+  --code:               var(--surface);
+  --code-foreground:    var(--surface-foreground);
+  --code-highlight:     #1f1f1f; /* gray-200 dark */
+  --code-number:        #a0a0a0; /* gray-900 dark */
+  --code-token-keyword: #0090ff; /* blue-600 dark */
+  --code-token-type:    #bd8fff; /* purple accent dark */
+  --code-token-string:  #00ac3a; /* green-700 dark */
+  --code-token-number:  #ffae00; /* amber-700 dark */
+  --code-token-comment: #7d7d7d; /* gray-800 dark */
+  --code-token-method:  #bd8fff; /* purple accent dark */
+  --code-token-operator:#f32e40; /* red-600 dark */
+
+  /* Text selection */
+  --selection:            #ededed; /* gray-1000 dark */
+  --selection-foreground: #000000;
+
+  /* Semantic status — dark accent scales */
+  --success:            #00ac3a; /* green-700 dark */
+  --success-foreground: #000000;
+  --warning:            #ffae00; /* amber-700 dark */
+  --warning-foreground: #000000;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
+
+  /* Border radius — Vercel: sm=6px md=12px lg=16px */
+  --radius-sm: var(--radius);                   /* 6px = Vercel sm */
+  --radius-md: calc(var(--radius) * 2);         /* 12px = Vercel md */
+  --radius-lg: calc(var(--radius) * 2.667);     /* 16px = Vercel lg */
+  --radius-xl: calc(var(--radius) * 4);         /* 24px */
+  --radius-2xl: calc(var(--radius) * 5.333);    /* 32px */
+  --radius-3xl: calc(var(--radius) * 8);        /* 48px */
+  --radius-4xl: 9999px;                         /* full */
+
+  --color-background:         var(--background);
+  --color-foreground:         var(--foreground);
+  --color-card:               var(--card);
+  --color-card-foreground:    var(--card-foreground);
+  --color-popover:            var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary:            var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary:          var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted:              var(--muted);
+  --color-muted-foreground:   var(--muted-foreground);
+  --color-accent:             var(--accent);
+  --color-accent-foreground:  var(--accent-foreground);
+  --color-destructive:        var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border:             var(--border);
+  --color-input:              var(--input);
+  --color-ring:               var(--ring);
+  --color-chart-1:            var(--chart-1);
+  --color-chart-2:            var(--chart-2);
+  --color-chart-3:            var(--chart-3);
+  --color-chart-4:            var(--chart-4);
+  --color-chart-5:            var(--chart-5);
+  --color-sidebar:                    var(--sidebar);
+  --color-sidebar-foreground:         var(--sidebar-foreground);
+  --color-sidebar-primary:            var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent:             var(--sidebar-accent);
+  --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+  --color-sidebar-border:             var(--sidebar-border);
+  --color-sidebar-ring:               var(--sidebar-ring);
+  --color-surface:            var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-code:               var(--code);
+  --color-code-foreground:    var(--code-foreground);
+  --color-code-highlight:     var(--code-highlight);
+  --color-code-number:        var(--code-number);
+  --color-code-token-keyword: var(--code-token-keyword);
+  --color-code-token-type:    var(--code-token-type);
+  --color-code-token-string:  var(--code-token-string);
+  --color-code-token-number:  var(--code-token-number);
+  --color-code-token-comment: var(--code-token-comment);
+  --color-code-token-method:  var(--code-token-method);
+  --color-code-token-operator: var(--code-token-operator);
+  --color-selection:          var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+  --color-success:            var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning:            var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  ::selection {
+    @apply bg-selection text-selection-foreground;
+  }
+  body {
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+  html {
+    @apply overscroll-y-none;
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}

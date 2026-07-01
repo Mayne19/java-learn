@@ -25,6 +25,19 @@ function trapsFor(lang: Lang): string {
   return lang === "java" ? JAVA_TRAPS : DYNAMIC_LANG_TRAPS
 }
 
+// Chapters before any real code (intro, install...) must never get code in
+// their questions; a couple of very early code chapters (compiling, basic
+// structure) should only ever get trivial CLI/one-liner code.
+function codeConstraintFor(chapter: Chapter, langLabel: string): string {
+  if (chapter.hasCode === false) {
+    return `\nWICHTIG: Dieses Kapitel behandelt noch KEINEN Code. Generiere NIEMALS ${langLabel}-Code (auch nicht als optionales Feld) — arbeite ausschließlich mit Fachbegriffen, Definitionen und Konzepten aus diesem Kapitel.\n`
+  }
+  if (chapter.simpleCodeOnly) {
+    return `\nWICHTIG: Dieses Kapitel ist sehr grundlegend. Verwende nur sehr einfachen Code: Kommandozeilenbefehle oder elementarste Syntax-Beispiele (keine Klassen, Schleifen, Funktionen oder andere komplexe Konstrukte).\n`
+  }
+  return ""
+}
+
 function contextBlock(chapter: Chapter): string {
   const langLabel = getLangLabel(chapter.lang)
 
@@ -32,7 +45,7 @@ function contextBlock(chapter: Chapter): string {
 Programmiersprache: ${langLabel}
 Schlüsselkonzepte: ${chapter.concepts.join(", ")}
 Zusammenfassung: ${chapter.summary}
-
+${codeConstraintFor(chapter, langLabel)}
 Häufige Prüfungsfallen${chapter.lang === "java" ? "" : " für diesen Kurs"}:
 ${trapsFor(chapter.lang)}
 
@@ -42,21 +55,24 @@ Antworte AUSSCHLIESSLICH mit gültigem JSON. Kein Markdown, keine Backticks.`
 export function buildPrompt(chapter: Chapter, exerciseType: string, fillBlankMode?: string): string {
   const ctx = contextBlock(chapter)
   const langLabel = getLangLabel(chapter.lang)
+  const hasCode = chapter.hasCode !== false
 
   switch (exerciseType) {
     case "mcq":
       return `${ctx}
 
 Erstelle eine Multiple-Choice-Frage über "${chapter.de}" auf Deutsch.
-Die Frage kann ${langLabel}-Code enthalten (optional). Wähle ZUFÄLLIG eine dieser Varianten:
+${hasCode
+  ? `Die Frage kann ${langLabel}-Code enthalten (optional). Wähle ZUFÄLLIG eine dieser Varianten:`
+  : `Die Frage darf KEINEN Code enthalten (code muss immer null sein). Wähle ZUFÄLLIG eine dieser Varianten:`}
 - 1 richtige Antwort von 4
 - 2 richtige Antworten von 4
 - Finde die FALSCHE Aussage
 
 Antworte mit diesem JSON:
 {
-  "question": "Was ist ... in folgendem Code?",
-  "code": "optionaler ${langLabel}-Code oder null",
+  "question": "Was ist ... ?",
+  "code": ${hasCode ? `"optionaler ${langLabel}-Code oder null"` : "null"},
   "options": ["A: ...", "B: ...", "C: ...", "D: ..."],
   "correct_indices": [0],
   "trap": "Beschreibung der Verwechslungsgefahr",
@@ -70,6 +86,12 @@ Antworte mit diesem JSON:
 Erstelle eine Zuordnungsübung über "${chapter.de}".
 Schreibe ${langLabel}-Code mit 4 markierten Stellen (<<<1>>>, <<<2>>>, <<<3>>>, <<<4>>>).
 Die Markierungen sollen wichtige ${langLabel}-Konzepte aus diesem Kapitel bezeichnen.
+
+Wichtige Regeln für den Code:
+- Der Code muss ein einfaches, GÜLTIGES Beispiel sein, das sich ausschließlich auf die oben gelisteten Schlüsselkonzepte dieses Kapitels stützt.
+- Verwende KEINE Konzepte aus späteren/anderen Kapiteln, die hier noch nicht eingeführt wurden.
+- Maximal 6 Zeilen Code.
+- Prüfe den Code Zeile für Zeile auf syntaktische Korrektheit, bevor du antwortest — er muss so, wie er ist, unverändert lauffähig sein (abgesehen von den <<<N>>>-Markierungen).
 
 Antworte mit diesem JSON:
 {
@@ -88,31 +110,37 @@ Antworte mit diesem JSON:
 
 Erstelle 4 Wahr/Falsch-Aussagen über "${chapter.de}" auf Deutsch.
 Genau 2 müssen wahr sein, 2 müssen falsch sein.
-Mindestens 1 Aussage muss einen ${langLabel}-Code-Ausschnitt enthalten.
+${hasCode
+  ? `Mindestens 1 Aussage muss einen ${langLabel}-Code-Ausschnitt enthalten.`
+  : `Verwende in KEINER Aussage Code (code muss immer null sein) — nur Text zu Begriffen und Definitionen.`}
 
 Antworte mit diesem JSON:
 {
   "statements": [
     { "text": "Aussage auf Deutsch", "code": null, "is_true": true, "explanation_de": "...", "explanation_fr": "..." },
-    { "text": "Aussage mit Code:", "code": "Beispielcode", "is_true": false, "explanation_de": "...", "explanation_fr": "..." },
+    { "text": "Aussage${hasCode ? " mit Code:" : " auf Deutsch"}", "code": ${hasCode ? '"Beispielcode"' : "null"}, "is_true": false, "explanation_de": "...", "explanation_fr": "..." },
     { "text": "Aussage auf Deutsch", "code": null, "is_true": true, "explanation_de": "...", "explanation_fr": "..." },
     { "text": "Aussage auf Deutsch", "code": null, "is_true": false, "explanation_de": "...", "explanation_fr": "..." }
   ]
 }`
 
-    case "fillBlank":
+    case "fillBlank": {
+      const blankSubject = hasCode
+        ? `im ${langLabel}-Code`
+        : `in einem beschreibenden deutschen Satz/Text über die Begriffe dieses Kapitels (KEIN Code — Definitionslücken statt Code-Lücken)`
+
       if (fillBlankMode === "free") {
         return `${ctx}
 
 Erstelle eine Lückentext-Übung (OHNE Wortbank) über "${chapter.de}".
-Verwende ___1___, ___2___, ___3___ für Lücken im ${langLabel}-Code.
-3-4 Lücken. Wichtige ${langLabel}-Keywords oder Konzepte aus diesem Kapitel.
+Verwende ___1___, ___2___, ___3___ für Lücken ${blankSubject}.
+3-4 Lücken. Wichtige ${hasCode ? `${langLabel}-Keywords oder Konzepte` : "Fachbegriffe"} aus diesem Kapitel.
 
 Antworte mit diesem JSON:
 {
   "variant": "free",
   "instruction": "Ergänze die Lücken — ohne Hilfe",
-  "code": "${langLabel}-Code mit ___1___ ___2___ ___3___",
+  "code": "${hasCode ? `${langLabel}-Code` : "Beschreibender Text"} mit ___1___ ___2___ ___3___",
   "blanks": [
     { "id": 1, "answer": "...", "explanation_de": "..." },
     { "id": 2, "answer": "...", "explanation_de": "..." },
@@ -124,14 +152,14 @@ Antworte mit diesem JSON:
         return `${ctx}
 
 Erstelle eine Lückentext-Übung MIT Wortbank über "${chapter.de}".
-Verwende ___1___, ___2___, ___3___ für Lücken im ${langLabel}-Code.
+Verwende ___1___, ___2___, ___3___ für Lücken ${blankSubject}.
 3-4 Lücken. Die Wortbank enthält die richtigen Antworten + 2 Distraktoren.
 
 Antworte mit diesem JSON:
 {
   "variant": "assisted",
   "instruction": "Ergänze die Lücken — wähle aus der Wortbank",
-  "code": "${langLabel}-Code mit ___1___ ___2___ ___3___",
+  "code": "${hasCode ? `${langLabel}-Code` : "Beschreibender Text"} mit ___1___ ___2___ ___3___",
   "blanks": [
     { "id": 1, "answer": "...", "explanation_de": "..." },
     { "id": 2, "answer": "...", "explanation_de": "..." },
@@ -141,6 +169,7 @@ Antworte mit diesem JSON:
   "explanation_fr": "Explication globale en français"
 }`
       }
+    }
 
     case "codeAnalysis":
       return `${ctx}

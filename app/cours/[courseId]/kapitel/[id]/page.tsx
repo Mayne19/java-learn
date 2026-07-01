@@ -31,6 +31,9 @@ const EXERCISE_TYPES = [
   { id: 'codeAnalysis', label: 'Code-Analyse',  de: 'Code-Analyse',    icon: Code2,      desc: 'Expliquer une ligne de code ciblée', tone: 'text-destructive bg-destructive/10' },
 ]
 
+// These exercise types only make sense once the chapter has actual code to work with.
+const NEEDS_CODE = new Set(['matching', 'codeAnalysis'])
+
 function runCommands(lang: Lang, slug: string): string[] {
   switch (lang) {
     case "java": return [`javac ${slug}.java`, `java ${slug}`]
@@ -151,35 +154,56 @@ export default function ChapterPage() {
             const prog = getTypeProgress(type.id)
             const typePct = prog ? Math.round((prog.correct / prog.total) * 100) : 0
             const Icon = type.icon
+            const disabled = !chapter.hasCode && NEEDS_CODE.has(type.id)
+
+            const card = (
+              <Card
+                className={
+                  disabled
+                    ? "border border-border/60 bg-card opacity-50 shadow-none grayscale"
+                    : "cursor-pointer border border-border/80 bg-card shadow-none transition-colors hover:border-ring/40 hover:bg-muted/35"
+                }
+              >
+                <CardContent className="flex gap-3 p-4 sm:items-center sm:gap-4">
+                  <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${type.tone}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <p className="text-lg font-semibold">{type.label}</p>
+                      <span className="text-sm text-muted-foreground">— {type.de}</span>
+                      {prog && !disabled && (
+                        <StatusDot
+                          state={typePct >= 70 ? 'READY' : 'BUILDING'}
+                          className="ml-auto"
+                        />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      {disabled ? "Non disponible pour ce chapitre" : type.desc}
+                    </p>
+                    {prog && !disabled && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Gauge value={typePct} size="tiny" />
+                        <span className="text-xs text-muted-foreground">{prog.correct}/{prog.total}</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+
+            if (disabled) {
+              return (
+                <div key={type.id} title="Non disponible pour ce chapitre" aria-disabled="true" className="cursor-not-allowed">
+                  {card}
+                </div>
+              )
+            }
 
             return (
               <Link key={type.id} href={`/cours/${courseId}/kapitel/${chapter.id}/${type.id}`}>
-                <Card className="cursor-pointer border border-border/80 bg-card shadow-none transition-colors hover:border-ring/40 hover:bg-muted/35">
-                  <CardContent className="flex gap-3 p-4 sm:items-center sm:gap-4">
-                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${type.tone}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <p className="text-lg font-semibold">{type.label}</p>
-                        <span className="text-sm text-muted-foreground">— {type.de}</span>
-                        {prog && (
-                          <StatusDot
-                            state={typePct >= 70 ? 'READY' : 'BUILDING'}
-                            className="ml-auto"
-                          />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-0.5">{type.desc}</p>
-                      {prog && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <Gauge value={typePct} size="tiny" />
-                          <span className="text-xs text-muted-foreground">{prog.correct}/{prog.total}</span>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                {card}
               </Link>
             )
           })}

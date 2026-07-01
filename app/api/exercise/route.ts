@@ -14,6 +14,13 @@ export async function POST(req: Request) {
   const chapter = getChapter(courseId, chapterId)
   if (!chapter) return Response.json({ error: 'Chapitre non trouvé' }, { status: 404 })
 
+  if (chapter.hasCode === false && (exerciseType === 'matching' || exerciseType === 'codeAnalysis')) {
+    return Response.json(
+      { error: "Ce type d'exercice n'est pas disponible pour ce chapitre." },
+      { status: 400 }
+    )
+  }
+
   const prompt = buildPrompt(chapter, exerciseType, fillBlankMode)
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {

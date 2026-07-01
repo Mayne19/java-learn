@@ -7,4 +7,8 @@ export interface Chapter {
   lang: Lang
   concepts: string[]
   summary: string
+  /** False for chapters that precede any actual code (intro, install, ...). */
+  hasCode: boolean
+  /** True for chapters that do have code but only very basic syntax/CLI commands. */
+  simpleCodeOnly?: boolean
 }

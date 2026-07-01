@@ -30,7 +30,7 @@ export default function LoginPage() {
 
     const { error } = await getSupabaseClient().auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${siteUrl}/` }
+      options: { emailRedirectTo: `${siteUrl}/api/auth/callback?next=/` }
     })
 
     if (error) {

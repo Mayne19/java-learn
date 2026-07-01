@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Gauge } from "@/components/gauge"
-import { Coffee, Sparkles, Zap } from "lucide-react"
+import { BookOpen, Coffee, Sparkles, Zap } from "lucide-react"
 
 interface ProgressRow {
   course_id: string
@@ -66,10 +66,6 @@ export default function HomePage() {
     return { total, correct, exploredChapters }
   }
 
-  const globalCorrect = progress.reduce((s, r) => s + r.correct, 0)
-  const globalTotal = progress.reduce((s, r) => s + r.total, 0)
-  const globalPct = globalTotal > 0 ? Math.round((globalCorrect / globalTotal) * 100) : 0
-
   if (loading) {
     return (
       <div className="space-y-5 sm:space-y-6">
@@ -85,24 +81,16 @@ export default function HomePage() {
 
   return (
     <div className="space-y-7 sm:space-y-8">
-      {/* Global progress across every course */}
-      <Card className="border border-border/80 border-l-ring bg-muted/30 shadow-none">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center">
-            <Gauge value={globalPct} size="large" showValue className="flex-shrink-0" />
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <Sparkles className="h-4 w-4 text-ring" />
-                <p className="text-lg font-semibold">Progression globale</p>
-              </div>
-              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <p>{COURSES.length} cours disponibles</p>
-                <p>{globalCorrect}/{globalTotal} réponses correctes</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Each course tracks its own progress — there is no cross-course score. */}
+      <div className="flex items-center gap-3">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-ring bg-ring/10">
+          <BookOpen className="h-5 w-5" />
+        </div>
+        <div>
+          <p className="text-lg font-semibold">Vos cours</p>
+          <p className="text-sm text-muted-foreground">{COURSES.length} cours disponibles — chaque cours a sa propre progression</p>
+        </div>
+      </div>
       {progressError && (
         <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 text-sm text-muted-foreground">
           {progressError}
@@ -116,7 +104,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {COURSES.map(course => {
             const { total, correct, exploredChapters } = getCourseStats(course.id)
-            const pct = total > 0 ? Math.round((correct / total) * 100) : 0
+            const pct = course.chapters.length > 0 ? Math.round((exploredChapters / course.chapters.length) * 100) : 0
             const Icon = COURSE_ICON[course.id] ?? Sparkles
             const tone = COURSE_TONE[course.id] ?? "text-ring bg-ring/10"
 

@@ -1,4 +1,5 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 let _client: SupabaseClient | null = null
 
@@ -12,6 +13,9 @@ export function isSupabaseConfigured(): boolean {
   }
 }
 
+// Uses createBrowserClient (@supabase/ssr) instead of the plain supabase-js
+// createClient so the session lives in cookies, not just localStorage — that's
+// what lets middleware.ts read it to enforce login on the server side.
 export function getSupabaseClient(): SupabaseClient {
   if (!_client) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -19,7 +23,7 @@ export function getSupabaseClient(): SupabaseClient {
     if (!url || !key || !isSupabaseConfigured()) {
       throw new Error('Supabase non configuré — remplissez .env.local')
     }
-    _client = createClient(url, key)
+    _client = createBrowserClient(url, key)
   }
   return _client
 }

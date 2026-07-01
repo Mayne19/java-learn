@@ -74,9 +74,12 @@ export default function CoursePage() {
   }
 
   const totalExplored = course.chapters.filter(c => getChapterProgress(c.id).explored).length
-  const globalCorrect = progress.reduce((s, r) => s + r.correct, 0)
-  const globalTotal = progress.reduce((s, r) => s + r.total, 0)
-  const globalPct = globalTotal > 0 ? Math.round((globalCorrect / globalTotal) * 100) : 0
+  const totalCorrect = progress.reduce((s, r) => s + r.correct, 0)
+  const totalAnswers = progress.reduce((s, r) => s + r.total, 0)
+  // Course progress = share of chapters started, not answer correctness (that's shown per-chapter below).
+  const courseProgressPct = course.chapters.length > 0
+    ? Math.round((totalExplored / course.chapters.length) * 100)
+    : 0
 
   if (loading) {
     return (
@@ -107,11 +110,11 @@ export default function CoursePage() {
         </div>
       </div>
 
-      {/* Global progress with Gauge */}
+      {/* Progress bar for THIS course only */}
       <Card className="border border-border/80 border-l-ring bg-muted/30 shadow-none">
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-col gap-4 min-[420px]:flex-row min-[420px]:items-center">
-            <Gauge value={globalPct} size="large" showValue className="flex-shrink-0" />
+            <Gauge value={courseProgressPct} size="large" showValue className="flex-shrink-0" />
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <Sparkles className="h-4 w-4 text-ring" />
@@ -119,7 +122,7 @@ export default function CoursePage() {
               </div>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
                 <p>{totalExplored}/{course.chapters.length} chapitres explorés</p>
-                <p>{globalCorrect}/{globalTotal} réponses correctes</p>
+                {totalAnswers > 0 && <p>{totalCorrect}/{totalAnswers} réponses correctes</p>}
               </div>
             </div>
           </div>
